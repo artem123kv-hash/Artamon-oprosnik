@@ -551,7 +551,49 @@
     text-transform:uppercase;padding:3px 8px;border-radius:10px;
     background:linear-gradient(180deg,#60a5fa,#3b82f6);color:#fff;
   }
-
+  #rAuthModal{position:fixed;inset:0;z-index:21000;display:none;align-items:center;justify-content:center;padding:16px;background:rgba(0,0,0,.92);backdrop-filter:blur(10px);}
+  #rAuthModal.on{display:flex;animation:fadeIn .3s ease}
+  .rAuthBox{max-width:420px;width:100%;background:linear-gradient(180deg,#141414,#0a0a0a);border:1px solid rgba(212,175,55,.35);border-radius:20px;padding:26px 22px;position:relative;color:#e8e6e1;font-family:"Segoe UI",system-ui,sans-serif;}
+  .rAuthBox .rAuthClose{position:absolute;top:12px;right:12px;background:transparent;border:1px solid #333;color:#8a8a8a;width:32px;height:32px;border-radius:8px;cursor:pointer;font-family:inherit;font-size:1rem;line-height:1;}
+  .rAuthTitle{font-size:1.5rem;font-weight:900;letter-spacing:.08em;text-transform:uppercase;background:linear-gradient(180deg,#f6e6a8,#d4af37 45%,#8f6f1a);-webkit-background-clip:text;background-clip:text;color:transparent;text-align:center;margin-bottom:6px;}
+  .rAuthSub{color:#8a8a8a;font-size:.78rem;text-align:center;letter-spacing:.1em;margin-bottom:20px;}
+  .rAuthTabs{display:flex;gap:6px;background:#0a0a0a;border:1px solid #2a2a2a;border-radius:12px;padding:4px;margin-bottom:20px;}
+  .rAuthTab{flex:1;background:transparent;border:none;color:#8a8a8a;padding:10px 8px;border-radius:9px;cursor:pointer;font-family:inherit;font-size:.78rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;transition:.2s;}
+  .rAuthTab.active{background:rgba(212,175,55,.18);color:#d4af37;}
+  .rAuthField{margin-bottom:14px;}
+  .rAuthField label{display:block;font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;color:#8a8a8a;margin-bottom:6px;}
+  .rAuthField input{width:100%;background:#0a0a0a;border:1px solid #2a2a2a;color:#e8e6e1;border-radius:10px;padding:13px 14px;font-size:16px;font-family:inherit;outline:none;box-sizing:border-box;}
+  .rAuthField input:focus{border-color:#d4af37;box-shadow:0 0 0 3px rgba(212,175,55,.14);}
+  .rAuthHint{font-size:.7rem;color:#5c5c5c;margin-top:4px;}
+  .rAuthError{background:rgba(248,113,113,.12);border:1px solid rgba(248,113,113,.4);color:#f87171;border-radius:10px;padding:10px 14px;font-size:.82rem;margin-bottom:14px;display:none;}
+  .rAuthError.on{display:block;animation:fadeIn .2s ease;}
+  .rAuthBtn{width:100%;border:1px solid #8f6f1a;background:linear-gradient(180deg,rgba(212,175,55,.18),rgba(212,175,55,.06));color:#d4af37;padding:14px;border-radius:11px;cursor:pointer;font-family:inherit;font-size:.88rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;transition:.2s;margin-top:6px;}
+  .rAuthBtn:active{transform:scale(.98)}
+  .rAuthBtn:disabled{opacity:.5;cursor:not-allowed}
+  .rAuthBtn.ghost{background:transparent;border-color:#2a2a2a;color:#8a8a8a;font-weight:600;letter-spacing:.06em;text-transform:none;font-size:.82rem;}
+  .rAuthBtn.ghost:hover{border-color:#d4af37;color:#d4af37}
+  .rAuthDivider{display:flex;align-items:center;gap:10px;margin:18px 0;color:#5c5c5c;font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;}
+  .rAuthDivider::before,.rAuthDivider::after{content:"";flex:1;height:1px;background:#2a2a2a;}
+  .rAuthPane{display:none}
+  .rAuthPane.on{display:block;animation:fadeIn .25s ease;}
+  .rAuthGuest{text-align:center;color:#8a8a8a;font-size:.82rem;line-height:1.6;padding:12px 0;}
+  .rAuthGuest b{color:#d4af37}
+  .rAuthSpinner{display:inline-block;width:16px;height:16px;border:2px solid rgba(212,175,55,.3);border-top-color:#d4af37;border-radius:50%;animation:spin 0.7s linear infinite;vertical-align:middle;margin-right:6px;}
+  .rProfileCard{background:rgba(0,0,0,.4);border:1px solid #2a2a2a;border-radius:14px;padding:18px;margin-bottom:16px;}
+  .rProfileRow{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #1a1a1a;font-size:.86rem;}
+  .rProfileRow:last-child{border-bottom:none;}
+  .rProfileRow .lbl{color:#8a8a8a;font-size:.74rem;letter-spacing:.08em;text-transform:uppercase;}
+  .rProfileRow .val{color:#d4af37;font-weight:700;}
+  .rProfileNick{text-align:center;font-size:1.4rem;font-weight:900;color:#d4af37;margin-bottom:4px;}
+  .rProfileSince{text-align:center;font-size:.7rem;color:#5c5c5c;letter-spacing:.1em;text-transform:uppercase;margin-bottom:16px;}
+  .rLbLoading{text-align:center;padding:40px 0;color:#8a8a8a;font-size:.82rem;}
+  .rLbLoading .sp{display:inline-block;width:24px;height:24px;border:3px solid rgba(212,175,55,.2);border-top-color:#d4af37;border-radius:50%;animation:spin 0.8s linear infinite;}
+  .rLbOnlineBar{display:flex;align-items:center;justify-content:center;gap:8px;font-size:.76rem;color:#8a8a8a;padding:8px 0;margin-bottom:8px;border-bottom:1px solid #1a1a1a;}
+  .rLbOnlineBar .dot{width:8px;height:8px;border-radius:50%;background:#4ade80;box-shadow:0 0 8px #4ade80;animation:onlinePulse 1.6s ease-in-out infinite;}
+  .rLbOnlineBar b{color:#4ade80;}
+  .rYouCard{background:linear-gradient(135deg,rgba(96,165,250,.12),rgba(96,165,250,.03));border:1.5px solid rgba(96,165,250,.5);border-radius:14px;padding:12px;margin-bottom:14px;display:flex;align-items:center;gap:10px;position:relative;animation:rLbFade .4s ease;}
+  .rYouTag{position:absolute;top:-9px;left:12px;font-size:.6rem;font-weight:900;letter-spacing:.1em;text-transform:uppercase;background:linear-gradient(180deg,#60a5fa,#3b82f6);color:#fff;padding:3px 9px;border-radius:10px;}
+  @keyframes rLbFade{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
   @media (max-width:520px){
     .wrap{padding:16px 10px 70px;padding-top:calc(16px + env(safe-area-inset-top));padding-bottom:calc(70px + env(safe-area-inset-bottom))}
     .card{padding:16px}
@@ -1065,7 +1107,72 @@
 </div>
 
 <div id="toast"></div>
-  
+  <div id="rAuthModal">
+  <div class="rAuthBox">
+    <button class="rAuthClose" type="button" id="rAuthClose">×</button>
+    <div class="rAuthTitle">Artamon Account</div>
+    <div class="rAuthSub">Онлайн-лидерборд · Сохранение рекордов</div>
+    <div class="rAuthTabs">
+      <button class="rAuthTab active" type="button" data-authtab="login">Вход</button>
+      <button class="rAuthTab" type="button" data-authtab="register">Регистрация</button>
+      <button class="rAuthTab" type="button" data-authtab="guest">Гость</button>
+    </div>
+    <div class="rAuthError" id="rAuthError"></div>
+    <div class="rAuthPane on" id="rPaneLogin">
+      <div class="rAuthField">
+        <label>Ник</label>
+        <input type="text" id="rLoginNick" maxlength="20" placeholder="Твой ник" autocomplete="username">
+      </div>
+      <div class="rAuthField">
+        <label>Пароль</label>
+        <input type="password" id="rLoginPass" maxlength="40" placeholder="••••••••" autocomplete="current-password">
+      </div>
+      <button class="rAuthBtn" type="button" id="rLoginBtn">Войти</button>
+    </div>
+    <div class="rAuthPane" id="rPaneRegister">
+      <div class="rAuthField">
+        <label>Ник</label>
+        <input type="text" id="rRegNick" maxlength="20" placeholder="3-20 символов" autocomplete="username">
+        <div class="rAuthHint">Буквы, цифры, _ и дефис</div>
+      </div>
+      <div class="rAuthField">
+        <label>Пароль</label>
+        <input type="password" id="rRegPass" maxlength="40" placeholder="Минимум 4 символа" autocomplete="new-password">
+      </div>
+      <div class="rAuthField">
+        <label>Повтори пароль</label>
+        <input type="password" id="rRegPass2" maxlength="40" placeholder="Ещё раз" autocomplete="new-password">
+      </div>
+      <button class="rAuthBtn" type="button" id="rRegBtn">Создать аккаунт</button>
+    </div>
+    <div class="rAuthPane" id="rPaneGuest">
+      <div class="rAuthGuest">
+        Играй <b>без аккаунта</b>.<br>
+        Рекорды сохранятся локально,<br>
+        но <b>не попадут в мировой лидерборд</b>.
+      </div>
+      <button class="rAuthBtn ghost" type="button" id="rGuestBtn">🎮 Играть как гость</button>
+      <div class="rAuthDivider">или</div>
+      <button class="rAuthBtn" type="button" id="rGuestToReg">Создать аккаунт</button>
+    </div>
+  </div>
+</div>
+
+<div id="rProfileModal" style="position:fixed;inset:0;z-index:21000;display:none;align-items:center;justify-content:center;padding:16px;background:rgba(0,0,0,.92);backdrop-filter:blur(10px);">
+  <div class="rAuthBox" style="max-width:400px;">
+    <button class="rAuthClose" type="button" id="rProfileClose">×</button>
+    <div class="rAuthTitle">Профиль</div>
+    <div class="rProfileNick" id="rProfNick">—</div>
+    <div class="rProfileSince" id="rProfSince">—</div>
+    <div class="rProfileCard">
+      <div class="rProfileRow"><span class="lbl">🏆 Рекорд</span><span class="val" id="rProfDist">0 м</span></div>
+      <div class="rProfileRow"><span class="lbl">👹 Боссы</span><span class="val" id="rProfBosses">0</span></div>
+      <div class="rProfileRow"><span class="lbl">🪙 Монеты</span><span class="val" id="rProfCoins">0</span></div>
+      <div class="rProfileRow"><span class="lbl">🎮 Забегов</span><span class="val" id="rProfRuns">0</span></div>
+    </div>
+    <button class="rAuthBtn ghost" type="button" id="rProfLogout">🚪 Выйти из аккаунта</button>
+  </div>
+</div>
 <script>
 /* ============================================================
    ARTAMON 2.2 — THE RUNNER UPDATE
