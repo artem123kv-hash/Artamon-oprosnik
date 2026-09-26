@@ -3810,6 +3810,11 @@ window.ARTAMON_OPEN_RUNNER = openRunner;
     saveRecords();
     R.coins += R.runCoins;
     saveCoins();
+        if(typeof ARTAMON_API !== "undefined" && ARTAMON_API.isLoggedIn()){
+      ARTAMON_API.submit(Math.floor(R.distance), R.runBosses, R.runCoins).then(function(res){
+        if(res && res.isRecord){ try{ toast("🏆 Рекорд сохранён онлайн!"); }catch(e){} }
+      });
+    }
     AUDIO.gameOver(); haptic([40,60,80]);
     if($r("rGoDist")) $r("rGoDist").textContent = Math.floor(R.distance);
     if($r("rGoCoins")) $r("rGoCoins").textContent = R.runCoins;
