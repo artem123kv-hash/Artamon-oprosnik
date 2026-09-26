@@ -4323,6 +4323,283 @@ window.ARTAMON_OPEN_RUNNER = openRunner;
 
   console.log("⚡ Artamon 2.2 — Runner 2.0 integration loaded");
 })();
+  
+/* ============================================================
+   ARTAMON API — ОБЁРТКА НАД CLOUDFLARE WORKER
+   ============================================================ */
+var ARTAMON_API = (function(){
+  var BASE = "https://artamon-api.artem123kv.workers.dev";
+  var KEY = "artamon_account_v1";
+  function loadAccount(){ try{ var raw = SAFE_STORE.get(KEY); if(raw) return JSON.parse(raw); }catch(e){} return null; }
+  function saveAccount(acc){ try{ SAFE_STORE.set(KEY, JSON.stringify(acc)); }catch(e){} }
+  function clearAccount(){ try{ SAFE_STORE.remove(KEY); }catch(e){} }
+  function req(path, opts){
+    opts = opts || {};
+    return fetch(BASE + path, {
+      method: opts.method || "GET",
+      headers: Object.assign({ "Content-Type": "application/json" }, opts.headers || {}),
+      body: opts.body ? JSON.stringify(opts.body) : undefined,
+    }).then(function(r){
+      return r.json().then(function(data){
+        if(!r.ok) throw new Error(data.error || ("HTTP " + r.status));
+        return data;
+      });
+    });
+  }
+  function register(nick, password){
+    return req("/api/register", { method: "POST", body: { nick: nick, password: password } }).then(function(data){
+      var acc = { nick: data.nick, token: data.token, bestDist: 0, bestBosses: 0, createdAt: Date.now() };
+      saveAccount(acc); return acc;
+    });
+  }
+  function login(nick, password){
+    return req("/api/login", { method: "POST", body: { nick: nick, password: password } }).then(function(data){
+      var acc = { nick: data.nick, token: data.token, bestDist: data.bestDist || 0, bestBosses: data.bestBosses || 0, totalCoins: data.totalCoins || 0, runs: data.runs || 0 };
+      saveAccount(acc); return acc;
+    });
+  }
+  function submit(dist, bosses, coins){
+    var acc = loadAccount();
+    if(!acc || !acc.token) return Promise.resolve(null);
+    return req("/api/submit", { method: "POST", body: { nick: acc.nick, token: acc.token, dist: dist, bosses: bosses, coins: coins } })
+      .then(function(data){ acc.bestDist = data.bestDist; acc.bestBosses = data.bestBosses; saveAccount(acc); return data; })
+      .catch(function(){ return null; });
+  }
+  function leaderboard(){ return req("/api/leaderboard"); }
+  function profile(nick){ return req("/api/profile?nick=" + encodeURIComponent(nick)); }
+  function isLoggedIn(){ var acc = loadAccount(); return !!(acc && acc.token); }
+  function getAccount(){ return loadAccount(); }
+  function logout(){ clearAccount(); }
+  return { register: register, login: login, submit: submit, leaderboard: leaderboard, profile: profile, isLoggedIn: isLoggedIn, getAccount: getAccount, logout: logout };
+})();
+
+var AUTH_UI = (function(){
+  var currentTab = "login";
+  function showError(msg){ var el = $("rAuthError"); if(!el) return; el.textContent = msg; el.classList.add("on"); }
+  function clearError(){ var el = $("rAuthError"); if(el) el.classList.remove("on"); }
+  function setLoading(btn, on, text){
+    if(!btn) return;
+    if(on){ btn.disabled = true; btn.dataset.orig = btn.textContent; btn.innerHTML = '<span class="rAuthSpinner"></span>' + (text || "Загрузка..."); }
+    else { btn.disabled = false; btn.textContent = btn.dataset.orig || "OK"; }
+  }
+  function switchTab(tab){
+    currentTab = tab;
+    document.querySelectorAll(".rAuthTab").forEach(function(t){ t.classList.toggle("active", t.getAttribute("data-authtab") === tab); });
+    ["login","register","guest"].forEach(function(t){
+      var pane = $("rPane" + t.charAt(0).toUpperCase() + t.slice(1));
+      if(pane) pane.classList.toggle("on", t === tab);
+    });
+    clearError();
+  }
+  function open(tab){
+    var m = $("rAuthModal"); if(m) m.classList.add("on");
+    switchTab(tab || "login");
+    var acc = ARTAMON_API.getAccount();
+    if(acc && tab !== "guest" && $("rLoginNick")) $("rLoginNick").value = acc.nick || "";
+  }
+  function close(){ var m = $("rAuthModal"); if(m) m.classList.remove("on"); clearError(); }
+  function doRegister(){
+    var nick = $("rRegNick") ? $("rRegNick").value.trim() : "";
+    var pass = $("rRegPass") ? $("rRegPass").value : "";
+    var pass2 = $("rRegPass2") ? $("rRegPass2").value : "";
+    clearError();
+    if(!nick || nick.length < 3 || nick.length > 20){ showError("Ник: 3-20 символов"); return; }
+    if(!pass || pass.length < 4){ showError("Пароль: минимум 4 символа"); return; }
+    if(pass !== pass2){ showError("Пароли не совпадают"); return; }
+    var btn = $("rRegBtn"); setLoading(btn, true, "Создаём...");
+    ARTAMON_API.register(nick, pass).then(function(acc){
+      setLoading(btn, false); toast("🎉 Аккаунт создан: " + acc.nick);
+      try{ ACH.unlock("first_account"); }catch(e){}
+      close(); updateRunnerMenuAuth();
+    }).catch(function(err){ setLoading(btn, false); showError(err.message || "Ошибка регистрации"); });
+  }
+  function doLogin(){
+    var nick = $("rLoginNick") ? $("rLoginNick").value.trim() : "";
+    var pass = $("rLoginPass") ? $("rLoginPass").value : "";
+    clearError();
+    if(!nick || !pass){ showError("Заполни все поля"); return; }
+    var btn = $("rLoginBtn"); setLoading(btn, true, "Входим...");
+    ARTAMON_API.login(nick, pass).then(function(acc){
+      setLoading(btn, false); toast("👋 С возвращением, " + acc.nick + "!");
+      close(); updateRunnerMenuAuth();
+    }).catch(function(err){ setLoading(btn, false); showError(err.message || "Ошибка входа"); });
+  }
+  function doGuest(){ toast("🎮 Гостевой режим"); close(); updateRunnerMenuAuth(); }
+  function init(){
+    if($("rAuthClose")) $("rAuthClose").addEventListener("click", function(){ AUDIO.click(); close(); });
+    document.querySelectorAll(".rAuthTab").forEach(function(t){ t.addEventListener("click", function(){ AUDIO.click(); switchTab(t.getAttribute("data-authtab")); }); });
+    if($("rLoginBtn")) $("rLoginBtn").addEventListener("click", function(){ AUDIO.click(); doLogin(); });
+    if($("rRegBtn")) $("rRegBtn").addEventListener("click", function(){ AUDIO.click(); doRegister(); });
+    if($("rGuestBtn")) $("rGuestBtn").addEventListener("click", function(){ AUDIO.click(); doGuest(); });
+    if($("rGuestToReg")) $("rGuestToReg").addEventListener("click", function(){ AUDIO.click(); switchTab("register"); });
+    ["rLoginNick","rLoginPass","rRegNick","rRegPass","rRegPass2"].forEach(function(id){
+      var el = $(id); if(el) el.addEventListener("keydown", function(e){ if(e.key === "Enter"){ e.preventDefault(); if(currentTab === "login") doLogin(); else doRegister(); } });
+    });
+  }
+  return { open: open, close: close, init: init };
+})();
+
+var PROFILE_UI = (function(){
+  function open(){
+    var acc = ARTAMON_API.getAccount();
+    if(!acc){ AUTH_UI.open("login"); return; }
+    var m = $("rProfileModal"); if(m) m.classList.add("on");
+    if($("rProfNick")) $("rProfNick").textContent = acc.nick || "—";
+    if($("rProfSince")){ var d = acc.createdAt ? new Date(acc.createdAt) : null; $("rProfSince").textContent = d ? ("С нами с " + d.toLocaleDateString()) : "Онлайн-профиль"; }
+    if($("rProfDist")) $("rProfDist").textContent = (acc.bestDist || 0) + " м";
+    if($("rProfBosses")) $("rProfBosses").textContent = acc.bestBosses || 0;
+    if($("rProfCoins")) $("rProfCoins").textContent = acc.totalCoins || 0;
+    if($("rProfRuns")) $("rProfRuns").textContent = acc.runs || 0;
+    ARTAMON_API.profile(acc.nick).then(function(data){
+      if($("rProfDist")) $("rProfDist").textContent = data.bestDist + " м";
+      if($("rProfBosses")) $("rProfBosses").textContent = data.bestBosses;
+      if($("rProfCoins")) $("rProfCoins").textContent = data.totalCoins;
+      if($("rProfRuns")) $("rProfRuns").textContent = data.runs;
+    }).catch(function(){});
+  }
+  function close(){ var m = $("rProfileModal"); if(m) m.classList.remove("on"); }
+  function logout(){
+    if(!confirm("Выйти из аккаунта?")) return;
+    ARTAMON_API.logout(); close(); toast("🚪 Вы вышли"); updateRunnerMenuAuth();
+  }
+  function init(){
+    if($("rProfileClose")) $("rProfileClose").addEventListener("click", function(){ AUDIO.click(); close(); });
+    if($("rProfLogout")) $("rProfLogout").addEventListener("click", function(){ AUDIO.click(); logout(); });
+  }
+  return { open: open, close: close, init: init };
+})();
+
+if(typeof ACHIEVEMENTS !== "undefined"){
+  ACHIEVEMENTS.first_account = { icon:"👤", name:"Первый аккаунт", desc:"Создал аккаунт Artamon", rarity:"rare" };
+  ACHIEVEMENTS.online_top10 = { icon:"🥇", name:"В десятке", desc:"Топ-10 мирового лидерборда", rarity:"epic" };
+  ACHIEVEMENTS.online_top1 = { icon:"👑", name:"Чемпион мира", desc:"№1 в мировом лидерборде", rarity:"legendary" };
+  ACHIEVEMENTS.online_lb_view = { icon:"🏆", name:"Соревнователь", desc:"Открыл онлайн-лидерборд", rarity:"common" };
+}
+
+function updateRunnerMenuAuth(){
+  var slot = document.getElementById("rMenuAuthSlot");
+  if(!slot) return;
+  var acc = ARTAMON_API.getAccount();
+  if(acc){
+    slot.innerHTML = '<button class="rAuthBtn ghost" type="button" id="rMenuProfileBtn" style="font-size:.74rem;padding:8px 12px;margin:0;">👤 ' + escapeHtml(acc.nick) + '</button>';
+    var btn = document.getElementById("rMenuProfileBtn");
+    if(btn) btn.addEventListener("click", function(){ try{ AUDIO.click(); }catch(e){} PROFILE_UI.open(); });
+  } else {
+    slot.innerHTML = '<button class="rAuthBtn ghost" type="button" id="rMenuLoginBtn" style="font-size:.74rem;padding:8px 12px;margin:0;">🔑 Войти в аккаунт</button>';
+    var btn2 = document.getElementById("rMenuLoginBtn");
+    if(btn2) btn2.addEventListener("click", function(){ try{ AUDIO.click(); }catch(e){} AUTH_UI.open("login"); });
+  }
+}
+
+function renderRealLeaderboard(content, filter){
+  content.innerHTML = '<div class="rLbLoading"><div class="sp"></div><div style="margin-top:12px;">Загрузка с сервера…</div></div>';
+  ARTAMON_API.leaderboard().then(function(data){
+    var real = (data.entries || []).map(function(e){
+      return { nick: e.nick, avatar: "⭐", dist: e.dist, bosses: e.bosses, date: new Date(e.updated).toISOString(), isYou: false, isReal: true };
+    });
+    var acc = ARTAMON_API.getAccount();
+    if(acc){
+      var mine = real.filter(function(x){ return x.nick.toLowerCase() === acc.nick.toLowerCase(); })[0];
+      if(mine){ mine.isYou = true; mine.nick = acc.nick; }
+      else real.push({ nick: acc.nick, avatar:"⭐", dist: acc.bestDist || 0, bosses: acc.bestBosses || 0, date: new Date().toISOString(), isYou: true, isReal: true });
+    }
+    var bots = generateBotsInternal(filter, Math.max(0, 20 - real.length));
+    var all = real.concat(bots);
+    all.sort(function(a,b){ return (b.dist - a.dist) || (b.bosses - a.bosses); });
+    var top20 = all.slice(0, 20);
+    var yourRank = -1;
+    for(var i=0; i<all.length; i++){ if(all[i].isYou){ yourRank = i+1; break; } }
+    var html = '<div class="rLbOnlineBar"><span class="dot"></span><span>Сейчас в топе:</span> <b>' + real.length + '</b> <span>реальных игроков</span></div>';
+    if(yourRank > 0 && yourRank > 20){
+      var you = all[yourRank - 1];
+      html += '<div class="rYouCard"><span class="rYouTag">ТВОЁ МЕСТО · #' + yourRank + '</span>';
+      html += '<div class="rLbRank" style="background:rgba(96,165,250,.2);border-color:#60a5fa;color:#60a5fa;">' + yourRank + '</div>';
+      html += '<div class="rLbAv" style="border-color:#60a5fa;">' + (you.avatar || "⭐") + '</div>';
+      html += '<div class="rLbInfo"><div class="rLbName" style="color:#93c5fd;">' + escapeHtml(you.nick) + '</div>';
+      html += '<div class="rLbMeta"><span>👹 <b>' + (you.bosses || 0) + '</b></span><span>' + timeAgoInternal(you.date) + '</span></div></div>';
+      html += '<div class="rLbScore"><div class="v">' + (you.dist || 0) + 'м</div><div class="l">метры</div></div></div>';
+    }
+    if(top20.length === 0){
+      html += '<div style="text-align:center;color:#5c5c5c;font-size:.85rem;padding:30px 10px;">Пока никто не пробежал. Будь первым!</div>';
+    } else {
+      html += '<div class="rLbList">';
+      top20.forEach(function(entry, idx){
+        var rank = idx + 1;
+        var cls = "rLbRow";
+        if(rank === 1) cls += " top1"; else if(rank === 2) cls += " top2"; else if(rank === 3) cls += " top3";
+        if(entry.isYou) cls += " you";
+        if(entry.isReal && !entry.isYou) cls += " isReal";
+        var medal = rank === 1 ? "🥇" : rank === 2 ? "🥈" : rank === 3 ? "🥉" : rank;
+        var nickColor = entry.isReal ? "#93c5fd" : "#e8e6e1";
+        html += '<div class="' + cls + '" style="animation-delay:' + (idx*0.04) + 's;">';
+        html += '<div class="rLbRank">' + medal + '</div>';
+        html += '<div class="rLbAv"' + (entry.isReal ? ' style="border-color:#60a5fa;"' : '') + '>' + entry.avatar + '</div>';
+        html += '<div class="rLbInfo"><div class="rLbName" style="color:' + nickColor + ';">' + escapeHtml(entry.nick) + (entry.isYou ? " (ты)" : "") + (entry.isReal && !entry.isYou ? ' <span style="font-size:.55rem;color:#60a5fa;letter-spacing:.08em;">● ONLINE</span>' : '') + '</div>';
+        html += '<div class="rLbMeta"><span>👹 <b>' + entry.bosses + '</b></span><span>' + timeAgoInternal(entry.date) + '</span></div></div>';
+        html += '<div class="rLbScore"><div class="v">' + entry.dist + 'м</div><div class="l">метры</div></div></div>';
+      });
+      html += '</div>';
+    }
+    content.innerHTML = html;
+    setTimeout(function(){ content.querySelectorAll(".rLbRow").forEach(function(row){ row.classList.add("show"); }); }, 50);
+    if(acc){
+      try{ if(yourRank === 1) ACH.unlock("online_top1"); else if(yourRank > 0 && yourRank <= 10) ACH.unlock("online_top10"); }catch(e){}
+    }
+  }).catch(function(err){
+    content.innerHTML = '<div style="text-align:center;color:#f87171;font-size:.85rem;padding:30px 10px;">❌ Не удалось загрузить.<br><span style="color:#8a8a8a;font-size:.75rem;">' + escapeHtml(err.message || "") + '</span></div>';
+  });
+}
+
+function generateBotsInternal(filter, count){
+  if(count <= 0) return [];
+  var names = ["Кубик","Артём","Ховавко","Санс","Папирус","Альфис","Меттатон","Ториэль","Азгор","Флауи","Напстаблук","Маффет","Гриллби","Темми","Джерри","Kot_Baron","_Ghost_","Zelya","PixelCat","Rainbow","Sanya2007","KefirKing","Grisha_zhe","Mashka","DarkLord_","Luntik","Vovan_54","Molniya","Kosmos","Lisichka","MegaCub","Speedy","X_King","ProGamer","Neko","Sakura","Zero","Neo","Vortex","Nova"];
+  var avatars = ["🐱","🦊","🐼","🐨","🦁","🐯","🐸","🐵","🦉","🐲","👽","🤖","👾","🎭","🎨","⚡","🔥","💎","🌙","⭐","🌌","🎮","🎯","🚀","🦄"];
+  for(var i=names.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=names[i]; names[i]=names[j]; names[j]=t; }
+  var mult = filter === "week" ? 1 : filter === "month" ? 1.4 : 2;
+  var bots = [];
+  for(var k=0;k<count;k++){
+    var nick = names[k % names.length];
+    if(k >= names.length) nick = names[k % names.length] + "_" + Math.floor(k/names.length);
+    var dist = Math.floor((200 + Math.random()*4000) * mult);
+    var bosses = Math.floor((1 + Math.random()*18) * Math.min(mult, 1.5));
+    var avatar = avatars[Math.floor(Math.random()*avatars.length)];
+    var minutesAgo = Math.floor(1 + Math.random() * (filter === "week" ? 7*24*60 : filter === "month" ? 30*24*60 : 365*24*60));
+    bots.push({ nick:nick, avatar:avatar, dist:dist, bosses:bosses, date:new Date(Date.now() - minutesAgo*60000).toISOString(), isYou:false, isReal:false });
+  }
+  return bots;
+}
+
+function timeAgoInternal(iso){
+  var diff = Date.now() - new Date(iso).getTime();
+  var min = Math.floor(diff / 60000);
+  if(min < 1) return "только что";
+  if(min < 60) return min + "м назад";
+  var hrs = Math.floor(min/60);
+  if(hrs < 24) return hrs + "ч назад";
+  var days = Math.floor(hrs/24);
+  if(days < 30) return days + "д назад";
+  return Math.floor(days/30) + "мес назад";
+}
+
+(function(){
+  function initAll(){
+    try{ AUTH_UI.init(); }catch(e){ console.error("AUTH_UI init", e); }
+    try{ PROFILE_UI.init(); }catch(e){ console.error("PROFILE_UI init", e); }
+    setTimeout(function(){
+      var rMenu = document.getElementById("rMenu");
+      if(rMenu && !document.getElementById("rMenuAuthSlot")){
+        var slot = document.createElement("div");
+        slot.id = "rMenuAuthSlot";
+        slot.style.cssText = "display:flex;justify-content:center;margin-bottom:12px;";
+        var rMenuContent = rMenu.querySelector(".rMenuContent") || rMenu.firstElementChild || rMenu;
+        rMenuContent.insertBefore(slot, rMenuContent.firstChild);
+        updateRunnerMenuAuth();
+      }
+    }, 1500);
+  }
+  if(document.readyState === "loading") document.addEventListener("DOMContentLoaded", initAll);
+  else setTimeout(initAll, 100);
+})();
 </script>
 </body>
 </html>
