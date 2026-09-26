@@ -2116,7 +2116,13 @@ function startPreloader(){
   }, 100);
 }
 
-function showWelcomeScreen(){ var w = $("scrWelcome"); if(w) w.classList.add("on"); }
+var _welcomeShownOnce = false;
+function showWelcomeScreen(){
+  if(_welcomeShownOnce) return;
+  _welcomeShownOnce = true;
+  var w = $("scrWelcome");
+  if(w && !w.classList.contains("on")) w.classList.add("on");
+}
 function showAgeScreen(){ var w = $("scrWelcome"); if(w) w.classList.remove("on"); var s = $("scrAge"); if(!s) return; s.classList.add("on"); var inp = $("ageInput"); if(inp){ inp.value=""; setTimeout(function(){ try{ inp.focus(); }catch(e){} }, 300); } }
 function hideAgeScreen(){ var s = $("scrAge"); if(s) s.classList.remove("on"); }
 function showModesScreen(){ hideAgeScreen(); var w = $("scrWelcome"); if(w) w.classList.remove("on"); setTimeout(function(){ var m = $("scrModes"); if(m) m.classList.add("on"); }, 200); }
