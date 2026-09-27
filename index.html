@@ -5419,7 +5419,7 @@ function executeBossAttack(b){
 }
 
 function updateBossProjectiles(dt){
-  var px = R.W*0.18, pw = 52;
+   = R.W*0.18, pw = 52;
   var ph = R.sliding ? 26 : 52;
   var hL = px, hR = px+pw;
   var hT = R.groundY + R.py - ph, hB = R.groundY + R.py;
@@ -5705,9 +5705,11 @@ function updateState(dt){
     }
   }
 
-  var px = R.W*0.18, pw = 52;
-  var ph = R.sliding ? 26 : 52;
-  var py = R.groundY + R.py - ph;
+  var hitPad = 4;
+var px = R.W*0.18 + hitPad;
+var pw = 52 - hitPad*2;
+var ph = R.sliding ? 26 : 52;
+var py = R.groundY + R.py - ph;
 
   for(var i=R.obstacles.length-1; i>=0; i--){
     var o = R.obstacles[i];
@@ -5777,6 +5779,10 @@ function updateState(dt){
     }
   }
 
+if(R._invuln > 0){
+  R._invuln -= dt/1000;
+  if(R._invuln < 0) R._invuln = 0;
+}
   if(R._flash > 0) R._flash--;
   if(R.bossActive) updateBoss(dt);
   updateHUD();
