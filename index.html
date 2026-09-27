@@ -587,31 +587,6 @@ footer .footer-version b{color:var(--gold-3);font-weight:800}
   .theme-picker,.bg-picker{grid-template-columns:repeat(2,1fr)}
   #dmStack{max-width:calc(100vw - 20px);right:10px;}
 }
-#featuresModal{position:fixed;inset:0;z-index:9700;display:none;align-items:center;justify-content:center;padding:20px;background:rgba(0,0,0,.95);backdrop-filter:blur(10px);}
-#featuresModal.on{display:flex;animation:fadeIn .35s ease}
-.featuresBox{max-width:600px;width:100%;max-height:92vh;overflow-y:auto;background:linear-gradient(180deg,var(--card-bg-1),var(--card-bg-2));border:1px solid color-mix(in srgb, var(--gold-2) 40%, transparent);border-radius:20px;padding:24px 20px;position:relative;}
-.featuresClose{position:absolute;top:14px;right:14px;background:transparent;border:1px solid var(--card-border);color:var(--txt-2);width:34px;height:34px;border-radius:8px;cursor:pointer;font-family:inherit;font-size:1.1rem;line-height:1;z-index:10;}
-.featuresTitle{font-size:clamp(1.3rem,5vw,1.7rem);font-weight:900;letter-spacing:.12em;text-transform:uppercase;background:linear-gradient(180deg,var(--gold-1),var(--gold-2) 45%,var(--gold-3));-webkit-background-clip:text;background-clip:text;color:transparent;text-align:center;margin-bottom:6px;}
-.featuresSub{text-align:center;color:var(--txt-2);font-size:.75rem;letter-spacing:.14em;text-transform:uppercase;margin-bottom:18px;}
-.featuresLegend{display:flex;justify-content:center;gap:16px;margin-bottom:16px;flex-wrap:wrap;font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;}
-.featuresLegend .li{display:flex;align-items:center;gap:6px;color:var(--txt-2);}
-.featuresLegend .dot{width:9px;height:9px;border-radius:50%;box-shadow:0 0 8px currentColor;}
-.featuresLegend .dot.on{background:#4ade80;color:#4ade80;}
-.featuresLegend .dot.off{background:#f87171;color:#f87171;}
-.featuresLegend .dot.part{background:#fbbf24;color:#fbbf24;}
-.featuresTable{border-radius:14px;overflow:hidden;border:1px solid color-mix(in srgb, var(--gold-2) 25%, transparent);background:rgba(0,0,0,.4);}
-.featuresRow{display:grid;grid-template-columns:1fr auto;padding:12px 16px;border-bottom:1px solid rgba(255,255,255,.06);align-items:center;gap:12px;}
-.featuresRow:last-child{border-bottom:none}
-.featuresRow.featHeader{background:linear-gradient(180deg,color-mix(in srgb, var(--gold-2) 15%, transparent),transparent);font-weight:900;letter-spacing:.12em;text-transform:uppercase;font-size:.7rem;color:var(--gold-2);}
-.featuresRow .fName{display:flex;align-items:center;gap:10px;font-size:.88rem;min-width:0;}
-.featuresRow .fName .ico{font-size:1.2rem;flex:0 0 auto;}
-.featuresRow .fName .name{word-break:break-word;}
-.featuresRow .fStatus{font-size:.68rem;font-weight:900;letter-spacing:.06em;text-transform:uppercase;padding:4px 10px;border-radius:20px;white-space:nowrap;}
-.featuresRow .fStatus.on{background:rgba(74,222,128,.15);color:#4ade80;border:1px solid rgba(74,222,128,.5);}
-.featuresRow .fStatus.off{background:rgba(248,113,113,.15);color:#f87171;border:1px solid rgba(248,113,113,.5);}
-.featuresRow .fStatus.part{background:rgba(251,191,36,.15);color:#fbbf24;border:1px solid rgba(251,191,36,.5);}
-.featuresNote{margin-top:16px;padding:12px 14px;background:color-mix(in srgb, var(--gold-2) 6%, transparent);border:1px solid color-mix(in srgb, var(--gold-2) 25%, transparent);border-radius:12px;font-size:.75rem;line-height:1.6;color:var(--txt-2);text-align:center;}
-.featuresNote b{color:var(--gold-2);}
 </style>
 </head>
 <body class="intro-lock" data-theme="gold" data-bg="aurora">
@@ -711,39 +686,6 @@ footer .footer-version b{color:var(--gold-3);font-weight:800}
       <button class="book-tab rar-legendary" type="button" data-filter="legendary">Легендарные</button>
     </div>
     <div class="book-list" id="bookList"></div>
-  </div>
-</div>
-<!-- ЭКРАН ВОЗМОЖНОСТЕЙ -->
-<div id="featuresModal">
-  <div class="featuresBox">
-    <button class="featuresClose" type="button" id="featuresClose">×</button>
-    <div class="featuresTitle">Возможности</div>
-    <div class="featuresSub">Онлайн · Офлайн · Artamon 2.4</div>
-    <div class="featuresLegend">
-      <div class="li"><span class="dot on"></span> Офлайн</div>
-      <div class="li"><span class="dot part"></span> Частично</div>
-      <div class="li"><span class="dot off"></span> Онлайн</div>
-    </div>
-    <div class="featuresTable">
-      <div class="featuresRow featHeader"><div>Функция</div><div>Статус</div></div>
-      <div class="featuresRow"><div class="fName"><span class="ico">🎮</span><span class="name">Runner 2.0</span></div><div class="fStatus on">✓ Офлайн</div></div>
-      <div class="featuresRow"><div class="fName"><span class="ico">🤖</span><span class="name">30 ботов · Опросы</span></div><div class="fStatus on">✓ Офлайн</div></div>
-      <div class="featuresRow"><div class="fName"><span class="ico">💬</span><span class="name">Комментарии ботов</span></div><div class="fStatus on">✓ Офлайн</div></div>
-      <div class="featuresRow"><div class="fName"><span class="ico">📖</span><span class="name">Книга достижений</span></div><div class="fStatus on">✓ Офлайн</div></div>
-      <div class="featuresRow"><div class="fName"><span class="ico">🎨</span><span class="name">Темы · Фоны · Языки</span></div><div class="fStatus on">✓ Офлайн</div></div>
-      <div class="featuresRow"><div class="fName"><span class="ico">🎵</span><span class="name">Музыка (11 треков)</span></div><div class="fStatus on">✓ Офлайн</div></div>
-      <div class="featuresRow"><div class="fName"><span class="ico">💰</span><span class="name">Монеты · Скины · Апгрейды</span></div><div class="fStatus on">✓ Офлайн</div></div>
-      <div class="featuresRow"><div class="fName"><span class="ico">🎁</span><span class="name">Ежедневки · Квесты</span></div><div class="fStatus on">✓ Офлайн</div></div>
-      <div class="featuresRow"><div class="fName"><span class="ico">👹</span><span class="name">15 боссов</span></div><div class="fStatus on">✓ Офлайн</div></div>
-      <div class="featuresRow"><div class="fName"><span class="ico">📱</span><span class="name">Установка как приложение</span></div><div class="fStatus on">✓ Офлайн</div></div>
-      <div class="featuresRow"><div class="fName"><span class="ico">🔑</span><span class="name">Регистрация / Вход</span></div><div class="fStatus off">✗ Онлайн</div></div>
-      <div class="featuresRow"><div class="fName"><span class="ico">🔄</span><span class="name">Синхронизация прогресса</span></div><div class="fStatus off">✗ Онлайн</div></div>
-      <div class="featuresRow"><div class="fName"><span class="ico">🏆</span><span class="name">Мировой лидерборд</span></div><div class="fStatus off">✗ Онлайн</div></div>
-      <div class="featuresRow"><div class="fName"><span class="ico">📤</span><span class="name">Отправка рекордов</span></div><div class="fStatus off">✗ Онлайн</div></div>
-      <div class="featuresRow"><div class="fName"><span class="ico">👤</span><span class="name">Профиль в облаке</span></div><div class="fStatus off">✗ Онлайн</div></div>
-      <div class="featuresRow"><div class="fName"><span class="ico">🎮</span><span class="name">Гостевой режим</span></div><div class="fStatus part">~ Частично</div></div>
-    </div>
-    <div class="featuresNote"><b>Гостевой режим:</b> можно играть без интернета, но прогресс сохранится только на устройстве и не попадёт в мировой топ.</div>
   </div>
 </div>
 
@@ -1119,7 +1061,6 @@ footer .footer-version b{color:var(--gold-3);font-weight:800}
   <button class="menu-item" id="miMusic" type="button"><span>🎵</span><span data-i18n="drawer.music">Музыка</span></button>
   <button class="menu-item" id="miStats" type="button"><span>📊</span><span data-i18n="drawer.stats">Статистика</span></button>
   <button class="menu-item" id="miBook" type="button"><span>📖</span><span data-i18n="drawer.book">Книга достижений</span><span class="badge-count" id="miBookCount">0/0</span></button>
-  <button class="menu-item" id="miFeatures" type="button"><span>📊</span><span>Возможности</span></button>
   <button class="menu-item" id="miSettings" type="button"><span>⚙️</span><span data-i18n="drawer.settings">Настройки</span></button>
   <button class="menu-item" id="miAbout" type="button"><span>ℹ️</span><span data-i18n="drawer.about">О приложении</span></button>
   <div class="sub">Онлайн</div>
@@ -4074,12 +4015,6 @@ document.addEventListener("click", function(e){
     BOOK.open();
     return;
   }
-  if($("miFeatures")) $("miFeatures").addEventListener("click", function(){
-  try{ AUDIO.click(); }catch(e){}
-  $("drawer").classList.remove("on");
-  $("overlay").classList.remove("on");
-  if(window.openFeatures) window.openFeatures();
-});
   if(el.closest("#miTutorial")){
     try{ AUDIO.click(); }catch(err){}
     $("drawer").classList.remove("on");
@@ -5419,7 +5354,7 @@ function executeBossAttack(b){
 }
 
 function updateBossProjectiles(dt){
-   = R.W*0.18, pw = 52;
+  var px = R.W*0.18, pw = 52;
   var ph = R.sliding ? 26 : 52;
   var hL = px, hR = px+pw;
   var hT = R.groundY + R.py - ph, hB = R.groundY + R.py;
@@ -5705,11 +5640,9 @@ function updateState(dt){
     }
   }
 
-  var hitPad = 4;
-var px = R.W*0.18 + hitPad;
-var pw = 52 - hitPad*2;
-var ph = R.sliding ? 26 : 52;
-var py = R.groundY + R.py - ph;
+  var px = R.W*0.18, pw = 52;
+  var ph = R.sliding ? 26 : 52;
+  var py = R.groundY + R.py - ph;
 
   for(var i=R.obstacles.length-1; i>=0; i--){
     var o = R.obstacles[i];
@@ -5779,10 +5712,6 @@ var py = R.groundY + R.py - ph;
     }
   }
 
-if(R._invuln > 0){
-  R._invuln -= dt/1000;
-  if(R._invuln < 0) R._invuln = 0;
-}
   if(R._flash > 0) R._flash--;
   if(R.bossActive) updateBoss(dt);
   updateHUD();
