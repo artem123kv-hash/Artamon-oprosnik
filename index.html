@@ -7527,6 +7527,30 @@ if("serviceWorker" in navigator){
     });
   });
 }
+  /* ═══ ЭКРАН ВОЗМОЖНОСТЕЙ ═══ */
+(function(){
+  var btn = document.getElementById("featuresClose");
+  var modal = document.getElementById("featuresModal");
+
+  if(btn && modal){
+    btn.addEventListener("click", function(){
+      try{ AUDIO.click(); }catch(e){}
+      modal.classList.remove("on");
+    });
+    modal.addEventListener("click", function(e){
+      if(e.target === modal) modal.classList.remove("on");
+    });
+    document.addEventListener("keydown", function(e){
+      if(e.key === "Escape" && modal.classList.contains("on")) modal.classList.remove("on");
+    });
+  }
+
+  window.openFeatures = function(){
+    try{ AUDIO.click(); }catch(e){}
+    var m = document.getElementById("featuresModal");
+    if(m) m.classList.add("on");
+  };
+})();
 </script>
 
 </body>
