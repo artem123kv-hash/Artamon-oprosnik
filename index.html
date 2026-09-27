@@ -7440,5 +7440,86 @@ console.log("🎮 Artamon 2.4 — Runner 2.0 UI loaded");
 })();
 </script>
 
+</body><!-- Кнопка "Установить приложение" -->
+<button id="pwaInstallBtn" type="button" style="
+  position:fixed;
+  bottom:calc(20px + env(safe-area-inset-bottom));
+  left:50%;
+  transform:translateX(-50%) translateY(120px);
+  z-index:9999;
+  background:linear-gradient(135deg,#f6e6a8,#d4af37,#8f6f1a);
+  color:#0a0a0a;
+  border:2px solid #f6e6a8;
+  border-radius:14px;
+  padding:12px 24px;
+  font-family:inherit;
+  font-size:.85rem;
+  font-weight:900;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  cursor:pointer;
+  box-shadow:0 8px 30px rgba(212,175,55,.6);
+  transition:transform .4s cubic-bezier(.5,1.5,.5,1),opacity .3s ease;
+  opacity:0;
+  pointer-events:none;
+">
+  📱 Установить Artamon
+</button>
+
+<script>
+/* ═══ PWA Install Button ═══ */
+(function(){
+  var deferredPrompt = null;
+  var btn = document.getElementById("pwaInstallBtn");
+  if(!btn) return;
+
+  function showBtn(){
+    btn.style.transform = "translateX(-50%) translateY(0)";
+    btn.style.opacity = "1";
+    btn.style.pointerEvents = "auto";
+  }
+  function hideBtn(){
+    btn.style.transform = "translateX(-50%) translateY(120px)";
+    btn.style.opacity = "0";
+    btn.style.pointerEvents = "none";
+  }
+
+  window.addEventListener("beforeinstallprompt", function(e){
+    e.preventDefault();
+    deferredPrompt = e;
+    setTimeout(showBtn, 3000);
+  });
+
+  btn.addEventListener("click", function(){
+    if(!deferredPrompt) return;
+    deferredPrompt.prompt();
+    deferredPrompt.userChoice.then(function(choice){
+      if(choice.outcome === "accepted"){
+        try{ if(typeof toast === "function") toast("📱 Artamon установлен!"); }catch(e){}
+      }
+      deferredPrompt = null;
+      hideBtn();
+    });
+  });
+
+  window.addEventListener("appinstalled", function(){
+    hideBtn();
+    try{ if(typeof toast === "function") toast("🎉 Добро пожаловать в приложение!"); }catch(e){}
+  });
+})();
+
+/* ═══ Service Worker Registration ═══ */
+if("serviceWorker" in navigator){
+  window.addEventListener("load", function(){
+    navigator.serviceWorker.register("sw.js").then(function(reg){
+      console.log("✅ Service Worker зарегистрирован");
+    }).catch(function(err){
+      console.log("❌ Service Worker: ", err);
+    });
+  });
+}
+</script>
+
 </body>
+</html>
 </html>
