@@ -1,7 +1,7 @@
 {
-  "name": "Artamon — Онлайн-опросы",
+  "name": "Artamon 2.5 — Онлайн-опросы",
   "short_name": "Artamon",
-  "description": "Онлайн-опросы, 30 ботов, Runner 2.0 с мировым лидербордом",
+  "description": "Artamon 2.5 - Runner Bugs Fix Update. Онлайн-опросы, 30 ботов, Runner 2.0",
   "start_url": "/Artamon-oprosnik/",
   "scope": "/Artamon-oprosnik/",
   "display": "standalone",
