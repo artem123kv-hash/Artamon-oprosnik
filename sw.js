@@ -2,7 +2,7 @@
    ARTAMON — Service Worker (PWA)
    ============================================================ */
 
-const CACHE_NAME = "artamon-v2.4-v1";
+const CACHE_NAME = "artamon-v2.5-v1";
 const CACHE_FILES = [
   "./",
   "./index.html",
@@ -16,7 +16,11 @@ self.addEventListener("install", function(event){
   self.skipWaiting();
   event.waitUntil(
     caches.open(CACHE_NAME).then(function(cache){
-      return cache.addAll(CACHE_FILES).catch(function(){});
+      return Promise.all(
+  CACHE_FILES.map(function(url){
+    return cache.add(url).catch(function(){});
+  })
+);
     })
   );
 });
