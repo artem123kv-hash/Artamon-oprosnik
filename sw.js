@@ -2,7 +2,7 @@
    ARTAMON — Service Worker (PWA)
    ============================================================ */
 
-const CACHE_NAME = "artamon-v2.5-v1";
+const CACHE_NAME = "artamon-v2.6-v1";
 const CACHE_FILES = [
   "./",
   "./index.html",
